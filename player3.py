@@ -12,13 +12,7 @@ def get_font(size):
     return pygame.font.Font("assets/Atop-R99O3.ttf", size)
 
 name_input = []  # Khởi tạo name_input như một list
-ready_count = 0
 
-def start_game():
-    screen = pygame.display.set_mode((1920, 1080))
-    pygame.display.set_caption("Stress Fight")
-    bg_image = pygame.image.load("assets/bggame.jpg")
-    screen.blit(bg_image, (0,0))
 def play():
     global name_input
 
@@ -58,8 +52,6 @@ def play():
                 elif event.key == pygame.K_RETURN:
                     # Làm gì đó với tên đã nhập, như lưu vào biến
                     print("Player name:", ''.join(name_input))
-                    # Gửi ready signal đến server khi nhấn Enter
-                    connect_to_server("ready")
                 else:
                     name_input.append(event.unicode)
 
@@ -77,40 +69,6 @@ def connect_to_server(player_name):
         print("Connected to the server as Player")
     except Exception as e:
         print("Error:", e)
-
-def wait_enemy():
-    global ready_count
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            # Nhận sự kiện từ server và tăng biến ready_count
-            if event.type == pygame.USEREVENT and event.message == "ready":
-                ready_count += 1
-
-        PLAY_MOUSE_POS = pygame.mouse.get_pos()
-        bg = pygame.image.load("assets/waiting.jpg")
-        SCREEN.blit(bg, (0, 0))
-
-        # Hiển thị thông báo chờ
-        wait_text = get_font(40).render("Waiting for other player...", True, (42, 231, 34))
-        wait_rect = wait_text.get_rect(center=(960, 400))
-        SCREEN.blit(wait_text, wait_rect)
-        
-        # Kiểm tra nếu đủ 2 người chơi thì hiển thị nút Start
-        if ready_count >= 2:
-            START_BUTTON = Button(pos=(960, 600), 
-                                  text_input="START", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
-            START_BUTTON.changeColor(PLAY_MOUSE_POS)
-            START_BUTTON.update(SCREEN)
-            
-            # Nếu đủ 2 người chơi thì gọi hàm start_game()
-            start_game()
-
-        pygame.display.update()
-
 
 def options():
     while True:
