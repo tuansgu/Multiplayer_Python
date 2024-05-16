@@ -1,24 +1,33 @@
 import pygame
 import sys
 import socket
+import gameplay
 from button import Button
+import traceback
 
 pygame.init()
-SCREEN = pygame.display.set_mode((1920, 1080))
+#systemInfo = pygame.display.Info()
+#SCREEN = pygame.display.set_mode((systemInfo.current_w, systemInfo.current_h))
+SCREEN = pygame.display.set_mode((1280,720))
 pygame.display.set_caption("Menu")
 BG = pygame.image.load("assets/bg.jpg")
 
 def get_font(size):
-    return pygame.font.Font("assets/Atop-R99O3.ttf", size)
+    return pygame.font.Font("assets/fonts/Atop-R99O3.ttf", size)
 
 name_input = []  # Khởi tạo name_input như một list
 ready_count = 0
 
-def start_game():
-    screen = pygame.display.set_mode((1920, 1080))
+def start_game1():
+    global systemInfo
+    screen = pygame.display.set_mode((systemInfo.current_w, systemInfo.current_h))
     pygame.display.set_caption("Stress Fight")
     bg_image = pygame.image.load("assets/bggame.jpg")
     screen.blit(bg_image, (0,0))
+
+def start_game(client_socket, player_name):
+    gameplay.run(client_socket, player_name)
+
 def play():
     global name_input
 
@@ -59,7 +68,7 @@ def play():
                     # Làm gì đó với tên đã nhập, như lưu vào biến
                     print("Player name:", ''.join(name_input))
                     # Gửi ready signal đến server khi nhấn Enter
-                    connect_to_server("ready")
+                    connect_to_server(''.join(name_input))
                 else:
                     name_input.append(event.unicode)
 
@@ -67,7 +76,8 @@ def play():
 
 def connect_to_server(player_name):
     # Kết nối đến server
-    HOST = '192.168.1.12'
+    #HOST = '192.168.56.1'
+    HOST = socket.gethostbyname(socket.gethostname())
     PORT = 5555
 
     try:
@@ -75,8 +85,11 @@ def connect_to_server(player_name):
         client_socket.connect((HOST, PORT))
         client_socket.send(player_name.encode())
         print("Connected to the server as Player")
+        #wait_enemy()
+        start_game(client_socket, player_name)
     except Exception as e:
         print("Error:", e)
+        traceback.print_exc()
 
 def wait_enemy():
     global ready_count
@@ -177,4 +190,5 @@ def main_menu():
         pygame.display.update()
 
 if __name__ == "__main__":
-    main_menu()
+    connect_to_server("John")
+    #main_menu()
